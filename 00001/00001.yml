@@ -1,56 +1,137 @@
 apiVersion: v1
-kind: Pod
+kind: Service
 metadata:
-  name: proceed-1
-  labels:
-    app: replicas
+  name: ns-stt
 spec:
-  containers:
-  - name: proceed-1
-    image: kim0lil/80700:v-1.0.0
-    ports:
-    - containerPort: 8080
+  ports:
+  - port: 7070
+    targetPort: 7070
+  selector:
+    app: proceed-1
 
 ---
 
 apiVersion: v1
-kind: Pod
+kind: ReplicaSet
 metadata:
-  name: proceed-2
-  labels:
-    app: replicas
+  name: test-rs-1
 spec:
-  containers:
-  - name: proceed-2
-    image: kim0lil/80700:v-1.0.0
-    ports:
-    - containerPort: 8080
-
----
-
-apiVersion: v1
-kind: Pod
-metadata:
-  name: proceed-3
-  labels:
-    app: replicas
-spec:
-  containers:
-  - name: proceed-3
-    image: kim0lil/80700:v-1.0.0
-    ports:
-    - containerPort: 8080
-
+  replicas: 3
+  selector:
+    matchLabels:
+      app: proceed-1
+  template:
+    metadata:
+      labels:
+        app: proceed-1
+    spec:
+      containers:
+      - name: proceed
+        image: kim0lil/stt-v1
+        ports:
+        - containerPort: 7070
 
 ---
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: replicas-service
+  name: ns-nlp
+spec:
+  ports:
+  - port: 7171
+    targetPort: 7171
+  selector:
+    app: proceed-2
+
+---
+
+apiVersion: v1
+kind: ReplicaSet
+metadata:
+  name: test-rs-2
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: proceed-2
+  template:
+    metadata:
+      labels:
+        app: proceed-2
+    spec:
+      containers:
+      - name: proceed
+        image: kim0lil/nlp-v1
+        ports:
+        - containerPort: 7171
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ns-rest
+spec:
+  ports:
+  - port: 7272
+    targetPort: 7272
+  selector:
+    app: proceed-3
+
+---
+
+apiVersion: v1
+kind: ReplicaSet
+metadata:
+  name: test-rs-3
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: proceed-3
+  template:
+    metadata:
+      labels:
+        app: proceed-3
+    spec:
+      containers:
+      - name: proceed
+        image: kim0lil/rest-v1
+        ports:
+        - containerPort: 7272
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ns-rest
 spec:
   ports:
   - port: 8080
     targetPort: 8080
   selector:
-    app: replicas
+    app: proceed-4
+
+---
+
+apiVersion: v1
+kind: ReplicaSet
+metadata:
+  name: test-rs-4
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: proceed-4
+  template:
+    metadata:
+      labels:
+        app: proceed-4
+    spec:
+      containers:
+      - name: proceed
+        image: kim0lil/gw-v1
+        ports:
+        - containerPort: 8080
